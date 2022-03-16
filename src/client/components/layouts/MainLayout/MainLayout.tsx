@@ -16,8 +16,8 @@ const MainLayout: FunctionComponent<MainLayoutProps> = (props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className={'flex flex-row h-screen'}>
-        <div className={styles.sidenav + ' md:w-1/6 sm:w-1/12'}>
-          <SideNav></SideNav>
+        <div className={'md:w-1/6 sm:w-1/12'}>
+          <SideNav />
         </div>
         <div className={'grow'}>{props.children}</div>
       </div>

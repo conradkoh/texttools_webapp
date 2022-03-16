@@ -35,7 +35,7 @@ const ComparePageTemplate: FunctionComponent<ComparePageTemplateProps> = ({
           <textarea
             value={left.value}
             onChange={handleLeftChange}
-            className="grow bg-slate-100 w-full"
+            className="grow bg-slate-100 w-full border-solid border-slate-300"
           ></textarea>
         </div>
         <div className="flex flex-col grow">
@@ -43,7 +43,7 @@ const ComparePageTemplate: FunctionComponent<ComparePageTemplateProps> = ({
           <textarea
             value={right.value}
             onChange={handleRightChange}
-            className="grow bg-slate-100 w-full"
+            className="grow bg-slate-100 w-full border-solid border-slate-300"
           ></textarea>
         </div>
       </div>
@@ -51,7 +51,7 @@ const ComparePageTemplate: FunctionComponent<ComparePageTemplateProps> = ({
       <textarea
         readOnly
         value={output.value}
-        className={`mt-1 w-full bg-slate-200 ${styles.output}`}
+        className={`mt-1 w-full bg-slate-200 border-solid border-slate-300 ${styles.output}`}
       ></textarea>
     </div>
   );

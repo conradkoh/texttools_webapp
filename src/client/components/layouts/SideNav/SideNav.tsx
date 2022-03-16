@@ -13,10 +13,10 @@ const SideNav: FunctionComponent<SideNavProps> = (props) => {
           </article>
         </div>
       </div>
-      <div className="pt-3 px-1">
+      <div className="pt-3 px-3">
         <div className="font-bold text-gray-700 text-sm">Navigation</div>
       </div>
-      <div className="p-1 flex justify-center">
+      <div className="py-1 px-3 flex justify-center">
         <Link href="/compare" passHref={true}>
           <Button variant="outlined" fullWidth={true} className="w-100">
             Compare

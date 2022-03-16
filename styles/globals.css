@@ -18,3 +18,15 @@ a {
 * {
   box-sizing: border-box;
 }
+textarea {
+  padding: 4px;
+  border: none;
+  overflow: auto;
+  outline: none;
+
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+
+  resize: none; /*remove the resize handle on the bottom right*/
+}

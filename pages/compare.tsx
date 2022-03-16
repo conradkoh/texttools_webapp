@@ -82,6 +82,9 @@ const compareLines =
       .filter((i) => i);
     let left_index = left_lines.reduce<Record<string, { name: string }>>(
       (state, cur, idx) => {
+        if (state[cur]) {
+          log(`⚠️ warning: duplicate found in left: ${cur}`);
+        }
         state[cur] = { name: cur };
         return state;
       },
@@ -89,28 +92,42 @@ const compareLines =
     );
     let right_index = right_lines.reduce<Record<string, { name: string }>>(
       (state, cur, idx) => {
+        if (state[cur]) {
+          log(`⚠️ warning: duplicate found in right: ${cur}`);
+        }
         state[cur] = { name: cur };
         return state;
       },
       {}
     );
 
+    let leftOp = '';
     //Find left items missing in right
     for (let name of left_lines) {
       let found = right_index[name] ? true : false;
       if (!found) {
-        log(`${name} found in left but not found in right.`);
+        leftOp += `${name} found in left but not found in right.\n`;
       }
     }
 
-    log('===================================');
-
+    let rightOp = '';
     //Find right items missing in left
     for (let name of right_lines) {
       let found = left_index[name] ? true : false;
       if (!found) {
-        log(`${name} found in right but not found in left.`);
+        rightOp += `${name} found in right but not found in left.\n`;
       }
     }
+    log('-------------------------------------');
+    log('✅ Comparison Results');
+    log('-------------------------------------');
+    if (!leftOp && !rightOp) {
+      log('Left and right contain the same content.');
+    } else {
+      log(leftOp.trim());
+      log('++++++++++++++++++++++++++++');
+      log(rightOp.trim());
+    }
+    log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
   };
 export default ComparePage;

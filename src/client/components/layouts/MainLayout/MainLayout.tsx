@@ -2,12 +2,12 @@ import React from 'react';
 import Head from 'next/head';
 import { FunctionComponent } from 'react';
 import styles from './MainLayout.module.scss';
+import SideNav from '@client/components/layouts/SideNav/SideNav';
+
 interface MainLayoutProps {
   title: string;
 }
 const MainLayout: FunctionComponent<MainLayoutProps> = (props) => {
-  const [left, ...mainContent] = React.Children.toArray(props.children);
-
   return (
     <>
       <Head>
@@ -16,8 +16,10 @@ const MainLayout: FunctionComponent<MainLayoutProps> = (props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className={'flex flex-row h-screen'}>
-        <div className={styles.sidenav + ' md:w-1/6 sm:w-1/12'}>{left}</div>
-        <div className={'grow'}>{mainContent}</div>
+        <div className={styles.sidenav + ' md:w-1/6 sm:w-1/12'}>
+          <SideNav></SideNav>
+        </div>
+        <div className={'grow'}>{props.children}</div>
       </div>
     </>
   );

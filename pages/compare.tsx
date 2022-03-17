@@ -119,7 +119,7 @@ const compareLines =
       }
     }
     log('-------------------------------------');
-    log('✅ Comparison Results');
+    log('✅  Comparison Results');
     log('-------------------------------------');
     if (!leftOp && !rightOp) {
       log('Left and right contain the same content.');

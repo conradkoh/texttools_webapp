@@ -102,24 +102,30 @@ const compareLines =
     );
 
     let leftOp = '';
+    let leftCount = 0;
     //Find left items missing in right
     for (let name of left_lines) {
       let found = right_index[name] ? true : false;
       if (!found) {
-        leftOp += `${name} found in left but not found in right.\n`;
+        leftCount++;
+        leftOp += `${leftCount}. ${name} found in left but not found in right.\n`;
       }
     }
 
     let rightOp = '';
+    let rightCount = 0;
     //Find right items missing in left
     for (let name of right_lines) {
       let found = left_index[name] ? true : false;
       if (!found) {
-        rightOp += `${name} found in right but not found in left.\n`;
+        rightCount++;
+        rightOp += `${rightCount}. ${name} found in right but not found in left.\n`;
       }
     }
     log('-------------------------------------');
-    log('✅  Comparison Results');
+    log(
+      `✅  Comparison Results   |   count = (L: ${left_lines.length}, R: ${right_lines.length})`
+    );
     log('-------------------------------------');
     if (!leftOp && !rightOp) {
       log('Left and right contain the same content.');

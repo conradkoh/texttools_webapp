@@ -72,68 +72,154 @@ const compareLines =
       log(`Waiting for input on right...`);
       return;
     }
-    let left_lines = left
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((i) => i);
-    let right_lines = right
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((i) => i);
-    let left_index = left_lines.reduce<Record<string, { name: string }>>(
-      (state, cur, idx) => {
-        if (state[cur]) {
-          log(`⚠️ warning: duplicate found in left: ${cur}`);
-        }
-        state[cur] = { name: cur };
-        return state;
-      },
-      {}
-    );
-    let right_index = right_lines.reduce<Record<string, { name: string }>>(
-      (state, cur, idx) => {
-        if (state[cur]) {
-          log(`⚠️ warning: duplicate found in right: ${cur}`);
-        }
-        state[cur] = { name: cur };
-        return state;
-      },
-      {}
-    );
+    const leftSet = StringSet.ParseRawText(left, {
+      name: 'left',
+      ignoreCase: true,
+    });
+    const rightSet = StringSet.ParseRawText(right, {
+      name: 'right',
+      ignoreCase: true,
+    });
 
-    let leftOp = '';
-    let leftCount = 0;
-    //Find left items missing in right
-    for (let name of left_lines) {
-      let found = right_index[name] ? true : false;
-      if (!found) {
-        leftCount++;
-        leftOp += `${leftCount}. ${name} found in left but not found in right.\n`;
-      }
-    }
-
-    let rightOp = '';
-    let rightCount = 0;
-    //Find right items missing in left
-    for (let name of right_lines) {
-      let found = left_index[name] ? true : false;
-      if (!found) {
-        rightCount++;
-        rightOp += `${rightCount}. ${name} found in right but not found in left.\n`;
-      }
-    }
+    let leftSubRight = leftSet.difference(rightSet);
+    let rightSubLeft = rightSet.difference(leftSet);
+    let leftIntersectRight = rightSet.intersection(leftSet);
     log('-------------------------------------');
     log(
-      `✅  Comparison Results   |   count = (L: ${left_lines.length}, R: ${right_lines.length})`
+      `✅  Comparison Results   |   count = (L: ${leftSet.length}, R: ${rightSet.length})`
     );
     log('-------------------------------------');
-    if (!leftOp && !rightOp) {
+    if (leftSubRight.length == 0 && rightSubLeft.length == 0) {
       log('Left and right contain the same content.');
     } else {
-      log(leftOp.trim());
       log('++++++++++++++++++++++++++++');
-      log(rightOp.trim());
+      log('> INTERSECTION');
+      log('++++++++++++++++++++++++++++');
+      log(leftIntersectRight.format({ prefix: (d) => `  ${d}` }));
+      log('++++++++++++++++++++++++++++');
+      log('> DIFFERENCE: LEFT - RIGHT');
+      log('++++++++++++++++++++++++++++');
+      log(leftSubRight.format({ prefix: (d) => `  ${d}` }));
+      log('++++++++++++++++++++++++++++');
+      log('> DIFFERENCE: RIGHT - LEFT');
+      log('++++++++++++++++++++++++++++');
+      log(rightSubLeft.format({ prefix: (d) => `  ${d}` }));
     }
     log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
   };
+
+class StringSet {
+  protected name: string;
+  private data: string[];
+  private map: Map<string, string>;
+  private flags: { ignoreCase: boolean };
+  constructor(name: string, data: string[], flags: { ignoreCase: boolean }) {
+    //pre-processing
+    let processedData = data.map((d) => {
+      if (flags.ignoreCase) {
+        return d.toLowerCase();
+      }
+      return d;
+    });
+    //construct
+    this.name = name;
+    this.flags = flags;
+    this.data = processedData;
+    this.map = StringSet.AsMap(processedData);
+  }
+  get length() {
+    return this.data.length;
+  }
+  /**
+   * [parser] Parses a raw text into a StringSet
+   * @param rawData
+   * @param set
+   * @returns
+   */
+  public static ParseRawText(
+    rawData: string,
+    set: { name: string; ignoreCase: boolean }
+  ): StringSet {
+    let lines = rawData
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((i) => i);
+    return new StringSet(set.name, lines, { ignoreCase: set.ignoreCase });
+  }
+  /**
+   * [formatter] Formats a string[] into output format
+   * @param data
+   */
+  public format(opts?: {
+    prefix?: (d: string) => string;
+    suffix?: (d: string) => string;
+  }) {
+    return this.data
+      .map((d) => {
+        let op = d;
+        if (opts?.prefix) {
+          op = opts.prefix(op);
+        }
+        if (opts?.suffix) {
+          op = opts.suffix(op);
+        }
+        return op;
+      })
+      .join('\n');
+  }
+
+  private static AsMap(data: string[]) {
+    return data.reduce((state, cur) => {
+      state.set(cur, cur);
+      return state;
+    }, new Map());
+  }
+  private checkCompatibility(a: StringSet, b: StringSet) {
+    if (a.flags.ignoreCase !== b.flags.ignoreCase) {
+      throw new Error(`Cannot compare sets with different ignoreCase flags.`);
+    }
+  }
+  /**
+   * Computes the difference between two sets. Warning: this is not commutative.
+   * @param other
+   * @returns
+   */
+  difference(other: StringSet): StringSet {
+    this.checkCompatibility(this, other); //we need to check for comaptibility because we want to generate a new set with rational flags
+    let thisMap = this.map;
+    let otherMap = other.map;
+    let result = new StringSet(
+      `difference: ${this.name} - ${other.name}`,
+      [],
+      this.flags
+    );
+    for (let [key, value] of thisMap) {
+      if (!otherMap.has(key)) {
+        result.data.push(value);
+      }
+    }
+    return result;
+  }
+  /**
+   * Computes the intersection between two sets.
+   * @param other
+   * @returns
+   */
+  intersection(other: StringSet): StringSet {
+    this.checkCompatibility(this, other); //we need to check for comaptibility because we want to generate a new set with rational flags
+    let thisMap = this.map;
+    let otherMap = other.map;
+    let result = new StringSet(
+      `intersection: ${this.name} - ${other.name}`,
+      [],
+      this.flags
+    );
+    for (let [key, value] of thisMap) {
+      if (otherMap.has(key)) {
+        result.data.push(value);
+      }
+    }
+    return result;
+  }
+}
 export default ComparePage;

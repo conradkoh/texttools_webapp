@@ -112,18 +112,13 @@ class StringSet {
   protected name: string;
   private data: string[];
   private map: Map<string, string>;
-  private flags: { ignoreCase: boolean };
-  constructor(name: string, data: string[], flags: { ignoreCase: boolean }) {
+  constructor(name: string, data: string[]) {
     //pre-processing
     let processedData = data.map((d) => {
-      if (flags.ignoreCase) {
-        return d.toLowerCase();
-      }
       return d;
     });
     //construct
     this.name = name;
-    this.flags = flags;
     this.data = processedData;
     this.map = StringSet.AsMap(processedData);
   }
@@ -144,7 +139,7 @@ class StringSet {
       .split('\n')
       .map((line) => line.trim())
       .filter((i) => i);
-    return new StringSet(set.name, lines, { ignoreCase: set.ignoreCase });
+    return new StringSet(set.name, lines);
   }
   /**
    * [formatter] Formats a string[] into output format
@@ -174,25 +169,15 @@ class StringSet {
       return state;
     }, new Map());
   }
-  private checkCompatibility(a: StringSet, b: StringSet) {
-    if (a.flags.ignoreCase !== b.flags.ignoreCase) {
-      throw new Error(`Cannot compare sets with different ignoreCase flags.`);
-    }
-  }
   /**
    * Computes the difference between two sets. Warning: this is not commutative.
    * @param other
    * @returns
    */
   difference(other: StringSet): StringSet {
-    this.checkCompatibility(this, other); //we need to check for comaptibility because we want to generate a new set with rational flags
     let thisMap = this.map;
     let otherMap = other.map;
-    let result = new StringSet(
-      `difference: ${this.name} - ${other.name}`,
-      [],
-      this.flags
-    );
+    let result = new StringSet(`difference: ${this.name} - ${other.name}`, []);
     for (let [key, value] of thisMap) {
       if (!otherMap.has(key)) {
         result.data.push(value);
@@ -206,13 +191,11 @@ class StringSet {
    * @returns
    */
   intersection(other: StringSet): StringSet {
-    this.checkCompatibility(this, other); //we need to check for comaptibility because we want to generate a new set with rational flags
     let thisMap = this.map;
     let otherMap = other.map;
     let result = new StringSet(
       `intersection: ${this.name} - ${other.name}`,
-      [],
-      this.flags
+      []
     );
     for (let [key, value] of thisMap) {
       if (otherMap.has(key)) {

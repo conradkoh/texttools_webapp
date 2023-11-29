@@ -106,12 +106,20 @@ const compareLines =
       log(rightSubLeft.format({ prefix: (d) => `${d}` }));
     }
     log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    log(`⛔️ WARNINGS (${leftSet.warnings.length + rightSet.warnings.length})`);
+    for (let w of leftSet.warnings) {
+      log(`[LEFT] ${w.message}: ${w.val}`);
+    }
+    for (let w of rightSet.warnings) {
+      log(`[RIGHT] ${w.message}: ${w.val}`);
+    }
   };
 
 class StringSet {
   protected name: string;
   private data: string[];
   private map: Map<string, string>;
+  private _warnings: Warning[] = [];
   constructor(name: string, data: string[]) {
     //pre-processing
     let processedData = data.map((d) => {
@@ -120,10 +128,15 @@ class StringSet {
     //construct
     this.name = name;
     this.data = processedData;
-    this.map = StringSet.AsMap(processedData);
+    const result = StringSet.AsMap(processedData);
+    this.map = result.map;
+    this._warnings = result.warnings;
   }
   get length() {
     return this.data.length;
+  }
+  get warnings() {
+    return this._warnings;
   }
   /**
    * [parser] Parses a raw text into a StringSet
@@ -163,11 +176,23 @@ class StringSet {
       .join('\n');
   }
 
-  private static AsMap(data: string[]) {
-    return data.reduce((state, cur) => {
-      state.set(cur, cur);
-      return state;
-    }, new Map());
+  private static AsMap(data: string[]): {
+    warnings: Warning[];
+    map: Map<string, string>;
+  } {
+    return data.reduce<{ warnings: Warning[]; map: Map<string, string> }>(
+      (state, cur) => {
+        if (state.map.has(cur)) {
+          state.warnings.push({ message: 'Duplicate value', val: cur });
+        }
+        state.map.set(cur, cur);
+        return state;
+      },
+      {
+        map: new Map(),
+        warnings: [] as Warning[],
+      }
+    );
   }
   /**
    * Computes the difference between two sets. Warning: this is not commutative.
@@ -204,5 +229,10 @@ class StringSet {
     }
     return result;
   }
+}
+
+interface Warning {
+  message: string;
+  val: string;
 }
 export default ComparePage;

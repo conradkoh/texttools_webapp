@@ -107,7 +107,9 @@ const compareLines =
     }
     log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
     if (leftSet.warnings.length + rightSet.warnings.length > 0) {
-      log(` WARNINGS (${leftSet.warnings.length + rightSet.warnings.length})`);
+      log(
+        `⛔️ WARNINGS (${leftSet.warnings.length + rightSet.warnings.length})`
+      );
       for (let w of leftSet.warnings) {
         log(`[LEFT] ${w.message}: ${w.val}`);
       }

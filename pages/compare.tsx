@@ -93,17 +93,17 @@ const compareLines =
       log('Left and right contain the same content.');
     } else {
       log('++++++++++++++++++++++++++++');
-      log('> INTERSECTION');
+      log(`> INTERSECTION (${leftIntersectRight.length})`);
       log('++++++++++++++++++++++++++++');
-      log(leftIntersectRight.format({ prefix: (d) => `  ${d}` }));
+      log(leftIntersectRight.format({ prefix: (d) => `${d}` }));
       log('++++++++++++++++++++++++++++');
-      log('> DIFFERENCE: LEFT - RIGHT');
+      log(`> DIFFERENCE: LEFT - RIGHT (${leftSubRight.length})`);
       log('++++++++++++++++++++++++++++');
-      log(leftSubRight.format({ prefix: (d) => `  ${d}` }));
+      log(leftSubRight.format({ prefix: (d) => `${d}` }));
       log('++++++++++++++++++++++++++++');
-      log('> DIFFERENCE: RIGHT - LEFT');
+      log(`> DIFFERENCE: RIGHT - LEFT (${rightSubLeft.length})`);
       log('++++++++++++++++++++++++++++');
-      log(rightSubLeft.format({ prefix: (d) => `  ${d}` }));
+      log(rightSubLeft.format({ prefix: (d) => `${d}` }));
     }
     log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
   };

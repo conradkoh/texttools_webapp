@@ -6,6 +6,15 @@ import { FunctionComponent } from 'react';
 interface ComparePageProps {}
 const PERSIST_KEY_LEFT_VALUE = 'compare-left-value';
 const PERSIST_KEY_RIGHT_VALUE = 'compare-right-value';
+
+// Utility function to count non-empty lines
+const countNonEmptyLines = (text: string): number => {
+  return text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line).length;
+};
+
 const ComparePage: FunctionComponent<ComparePageProps> = (props) => {
   const [left, setLeft] = useState({
     value: '',
@@ -48,11 +57,15 @@ const ComparePage: FunctionComponent<ComparePageProps> = (props) => {
   useEffect(() => {
     updateConsoleOutput();
   }, [updateConsoleOutput]);
+  // Calculate line stats
+  const leftLineCount = countNonEmptyLines(left.value);
+  const rightLineCount = countNonEmptyLines(right.value);
+
   return (
     <MainLayout title={'Compare'}>
       <ComparePageTemplate
-        left={left}
-        right={right}
+        left={{ ...left, lineCount: leftLineCount }}
+        right={{ ...right, lineCount: rightLineCount }}
         output={output}
         onLeftChange={handleLeftChange}
         onRightChange={handleRightChange}

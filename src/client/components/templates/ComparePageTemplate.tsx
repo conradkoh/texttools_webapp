@@ -3,8 +3,8 @@ import { FunctionComponent } from 'react';
 import styles from './ComparePageTemplate.module.scss';
 import { Condition } from '@client/components/atoms/Condition';
 interface ComparePageTemplateProps {
-  left: { value: string };
-  right: { value: string };
+  left: { value: string; lineCount: number };
+  right: { value: string; lineCount: number };
   output: { value: string };
   onLeftChange: (newVal: string) => void;
   onRightChange: (newVal: string) => void;
@@ -47,7 +47,9 @@ const ComparePageTemplate: FunctionComponent<ComparePageTemplateProps> = ({
             <Condition render={showInput}>
               <div className="flex flex-row grid grid-cols-2 gap-3">
                 <div className="flex flex-col grow">
-                  <div className="mt-3">Left:</div>
+                  <div className="mt-3">
+                    Left: <span className="text-gray-500 text-sm">({left.lineCount} lines)</span>
+                  </div>
                   <textarea
                     value={left.value}
                     onChange={handleLeftChange}
@@ -55,7 +57,9 @@ const ComparePageTemplate: FunctionComponent<ComparePageTemplateProps> = ({
                   ></textarea>
                 </div>
                 <div className="flex flex-col grow">
-                  <div className="mt-3">Right:</div>
+                  <div className="mt-3">
+                    Right: <span className="text-gray-500 text-sm">({right.lineCount} lines)</span>
+                  </div>
                   <textarea
                     value={right.value}
                     onChange={handleRightChange}

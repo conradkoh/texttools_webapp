@@ -1,0 +1,27 @@
+.dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.dropzone:hover {
+  border-color: #3b82f6;
+  background-color: #f0f7ff;
+}
+
+.dropzoneActive {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.output {
+  min-height: 500px;
+  font-size: small;
+}
+
+.fileInfo {
+  font-size: small;
+}

@@ -23,6 +23,13 @@ const SideNav: FunctionComponent<SideNavProps> = (props) => {
           </Button>
         </Link>
       </div>
+      <div className="py-1 px-3 flex justify-center">
+        <Link href="/pdf-parser" passHref={true}>
+          <Button variant="outlined" fullWidth={true} className="w-100">
+            PDF Parser
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };

@@ -2,10 +2,27 @@ import React, { useCallback, useState, useRef } from 'react';
 import { FunctionComponent } from 'react';
 import styles from './PdfParserPageTemplate.module.scss';
 
+interface PageData {
+  pageNum: number;
+  text: string;
+}
+
+interface ParseResult {
+  text: string;
+  pageCount: number;
+  pages: PageData[];
+}
+
 interface PdfParserPageTemplateProps {
   output: { value: string };
   setOutput: (val: { value: string }) => void;
 }
+
+const countWords = (text: string): number =>
+  text
+    .trim()
+    .split(/\s+/)
+    .filter((w) => w).length;
 
 const PdfParserPageTemplate: FunctionComponent<PdfParserPageTemplateProps> = ({
   output,
@@ -15,6 +32,8 @@ const PdfParserPageTemplate: FunctionComponent<PdfParserPageTemplateProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [parseResult, setParseResult] = useState<ParseResult | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(
@@ -28,6 +47,7 @@ const PdfParserPageTemplate: FunctionComponent<PdfParserPageTemplateProps> = ({
       setError(null);
       setLoading(true);
       setOutput({ value: '' });
+      setParseResult(null);
 
       try {
         const reader = new FileReader();
@@ -44,9 +64,7 @@ const PdfParserPageTemplate: FunctionComponent<PdfParserPageTemplateProps> = ({
 
         const response = await fetch('/api/pdf-parse', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ pdfBase64: base64 }),
         });
 
@@ -57,6 +75,7 @@ const PdfParserPageTemplate: FunctionComponent<PdfParserPageTemplateProps> = ({
         }
 
         setOutput({ value: data.text });
+        setParseResult(data);
       } catch (err: any) {
         setError(err.message || 'An error occurred while parsing the PDF.');
       } finally {
@@ -71,7 +90,6 @@ const PdfParserPageTemplate: FunctionComponent<PdfParserPageTemplateProps> = ({
       e.preventDefault();
       e.stopPropagation();
       setDragActive(false);
-
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         handleFile(e.dataTransfer.files[0]);
       }
@@ -104,81 +122,194 @@ const PdfParserPageTemplate: FunctionComponent<PdfParserPageTemplateProps> = ({
     [handleFile]
   );
 
+  const handleClear = useCallback(() => {
+    setOutput({ value: '' });
+    setSelectedFile(null);
+    setParseResult(null);
+    setError(null);
+    setCopySuccess(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [setOutput]);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(output.value);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch {
+      setCopySuccess(false);
+    }
+  }, [output.value]);
+
+  const handleDownload = useCallback(() => {
+    const blob = new Blob([output.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedFile?.name.replace(/\.pdf$/i, '') ?? 'parsed'}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [output.value, selectedFile]);
+
+  const hasResult = !loading && !error && output.value;
+
   return (
-    <>
-      <div className="px-3 py-3 w-100 h-full">
-        <div className="h-full flex flex-col">
-          <div
-            className={`${styles.dropzone} ${
-              dragActive ? styles.dropzoneActive : ''
-            }`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onClick={handleClick}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/pdf"
-              onChange={handleFileInput}
-              className="hidden"
-            />
-            {selectedFile ? (
-              <div className={styles.fileInfo}>
-                <div className="font-bold">{selectedFile.name}</div>
-                <div className="text-gray-500">
-                  {(selectedFile.size / 1024).toFixed(1)} KB
-                </div>
+    <div className="px-3 py-3 w-100 h-full">
+      <div className="h-full flex flex-col">
+        <div
+          className={`${styles.dropzone} ${
+            dragActive ? styles.dropzoneActive : ''
+          } ${selectedFile ? styles.dropzoneCompact : ''}`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onClick={!selectedFile ? handleClick : undefined}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf"
+            onChange={handleFileInput}
+            className="hidden"
+          />
+
+          {!selectedFile ? (
+            <div className="text-gray-400">
+              <div className="text-5xl mb-2">&#128196;</div>
+              <div className="text-sm font-medium">
+                Drop a PDF here or click to browse
               </div>
-            ) : (
-              <div className="text-gray-500">
-                <div className="text-4xl mb-2">&#128196;</div>
-                <div>Drop a PDF file here or click to browse</div>
-              </div>
-            )}
-          </div>
-
-          {loading && (
-            <div className="mt-3 text-center text-gray-500">
-              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mr-2"></div>
-              Parsing PDF...
+              <div className="text-xs mt-1">Supported: .pdf files up to 50MB</div>
             </div>
-          )}
-
-          {error && (
-            <div className="mt-3 text-red-500 text-sm p-2 bg-red-50 rounded">
-              {error}
-            </div>
-          )}
-
-          {selectedFile && !loading && (
-            <div className="mt-3">
+          ) : (
+            <div className={styles.fileChip}>
+              <span className="text-sm font-medium truncate max-w-[200px]">
+                &#128196; {selectedFile.name}
+              </span>
+              <span className="text-xs text-gray-400 ml-2">
+                {(selectedFile.size / 1024).toFixed(1)} KB
+              </span>
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => {
-                  setOutput({ value: '' });
-                  setSelectedFile(null);
-                  setError(null);
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                  }
+                className={styles.fileChipRemove}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClear();
                 }}
+                title="Remove file"
               >
-                Clear
+                &times;
               </button>
             </div>
           )}
-
-          <div className="mt-3">Output:</div>
-          <textarea
-            readOnly
-            value={output.value}
-            className={`mt-1 w-full grow bg-slate-200 border-solid border-slate-300 ${styles.output}`}
-          ></textarea>
         </div>
+
+        {loading && (
+          <div className="mt-4">
+            <div className={styles.progressBar}>
+              <div className={styles.progressBarFill} />
+            </div>
+            <div className="text-center text-sm text-gray-500 mt-2">
+              Extracting text from PDF...
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-3 text-red-600 text-sm p-3 bg-red-50 rounded border border-red-200">
+            {error}
+            <button
+              className="ml-2 underline hover:no-underline"
+              onClick={handleClear}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {hasResult && (
+          <>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className={styles.stats}>
+                {parseResult?.pageCount != null && (
+                  <span className={styles.stat}>
+                    {parseResult.pageCount}{' '}
+                    {parseResult.pageCount === 1 ? 'page' : 'pages'}
+                  </span>
+                )}
+                <span className={styles.stat}>
+                  {countWords(output.value).toLocaleString()} words
+                </span>
+                <span className={styles.stat}>
+                  {output.value.length.toLocaleString()} chars
+                </span>
+              </div>
+
+              <div className="flex gap-1 ml-auto">
+                <button
+                  className={styles.actionBtn}
+                  onClick={handleCopy}
+                  title="Copy to clipboard"
+                >
+                  {copySuccess ? (
+                    <span className="text-green-600">&#10003; Copied</span>
+                  ) : (
+                    <span>&#128203; Copy</span>
+                  )}
+                </button>
+                <button
+                  className={styles.actionBtn}
+                  onClick={handleDownload}
+                  title="Download as .txt"
+                >
+                  &#8615; Download .txt
+                </button>
+                <button
+                  className={styles.actionBtn}
+                  onClick={handleClear}
+                  title="Parse a new file"
+                >
+                  + New Parse
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-2 text-xs text-gray-400 italic">
+              Phase 2 (coming soon): AI-powered markdown formatting, summarization,
+              and translation — all running locally in your browser.
+            </div>
+
+            <div className="mt-1 flex-grow min-h-0">
+              <textarea
+                readOnly
+                value={
+                  parseResult?.pages && parseResult.pages.length > 1
+                    ? parseResult.pages
+                        .map(
+                          (p) =>
+                            `\u2500\u2500 Page ${p.pageNum} \u2500\u2500\n${p.text}`
+                        )
+                        .join('\n\n')
+                    : output.value
+                }
+                className={`mt-1 w-full h-full bg-slate-50 border border-slate-200 rounded p-3 font-mono text-xs leading-relaxed resize-none outline-none ${styles.output}`}
+                spellCheck={false}
+              />
+            </div>
+          </>
+        )}
+
+        {!hasResult && !loading && !error && (
+          <div className="mt-3 text-xs text-gray-400 italic">
+            Phase 2 (coming soon): AI-powered markdown formatting, summarization,
+            and translation — all running locally in your browser.
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

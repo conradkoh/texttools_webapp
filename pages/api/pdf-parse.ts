@@ -38,7 +38,16 @@ export default async function handler(
 
     await unlink(tempFilePath).catch(() => {});
 
-    res.status(200).json({ text: result.text });
+    const pages = result.pages.map((page) => ({
+      pageNum: page.pageNum,
+      text: page.text,
+    }));
+
+    res.status(200).json({
+      text: result.text,
+      pageCount: result.pages.length,
+      pages,
+    });
   } catch (error: any) {
     res.status(500).json({
       error: 'Failed to parse PDF',

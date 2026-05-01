@@ -1,7 +1,7 @@
 .dropzone {
   border: 2px dashed #cbd5e1;
   border-radius: 8px;
-  padding: 2rem;
+  padding: 3rem 2rem;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s, background-color 0.2s;
@@ -17,11 +17,109 @@
   background-color: #eff6ff;
 }
 
-.output {
-  min-height: 500px;
-  font-size: small;
+.dropzoneCompact {
+  padding: 0.75rem 1rem;
+  cursor: default;
+  border-style: solid;
+  border-color: #e2e8f0;
 }
 
-.fileInfo {
-  font-size: small;
+.dropzoneCompact:hover {
+  border-color: #e2e8f0;
+  background-color: transparent;
+}
+
+.fileChip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fileChipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  margin-left: auto;
+  transition: background 0.15s;
+}
+
+.fileChipRemove:hover {
+  background: #fca5a5;
+  color: #dc2626;
+}
+
+.progressBar {
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.output {
+  min-height: 400px;
+  height: calc(100vh - 320px);
+}
+
+.stats {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: inline-block;
+  font-size: 12px;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.actionBtn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1e293b;
 }

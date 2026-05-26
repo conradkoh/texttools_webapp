@@ -19,7 +19,7 @@ const MainLayout: FunctionComponent<MainLayoutProps> = (props) => {
         <div className={'md:w-1/6 sm:w-1/12'}>
           <SideNav />
         </div>
-        <div className={'grow'}>{props.children}</div>
+        <div className={'grow h-full'}>{props.children}</div>
       </div>
     </>
   );

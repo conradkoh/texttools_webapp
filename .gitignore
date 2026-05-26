@@ -40,3 +40,6 @@ yarn-error.log*
 
 # Next.js cache
 /cache
+
+# Command Code
+.commandcode/

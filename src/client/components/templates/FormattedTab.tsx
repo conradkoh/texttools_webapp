@@ -220,6 +220,8 @@ const SplitView: React.FC<{ stage: StageResult; onClose: () => void }> = ({ stag
     </div>
   </div>
 );
+
+const PipelineConnector: React.FC<{ active: boolean }> = ({ active }) => (
   <div className="flex justify-center py-1">
     <div className={`w-0.5 h-6 rounded-full ${active ? 'bg-blue-400' : 'bg-slate-200'}`} />
   </div>

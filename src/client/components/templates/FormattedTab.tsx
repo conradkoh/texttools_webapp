@@ -43,18 +43,35 @@ const CollapsibleSection: React.FC<{ title: string; defaultOpen?: boolean; child
   );
 };
 
-const StageCard: React.FC<{ stage: StageResult; index: number; isPipelineRunning: boolean }> = ({ stage, index, isPipelineRunning }) => {
+const StageCard: React.FC<{
+  stage: StageResult;
+  index: number;
+  isPipelineRunning: boolean;
+  onView: (stage: StageResult) => void;
+}> = ({ stage, index, isPipelineRunning, onView }) => {
+  const canView = stage.status === 'done' || stage.status === 'error';
   return (
     <div className={`border rounded-lg overflow-hidden ${stage.status === 'error' ? 'border-red-300' : 'border-slate-200'}`}>
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100">
+      <button
+        className="w-full flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 hover:bg-slate-50 transition-colors disabled:hover:bg-white disabled:cursor-default text-left"
+        onClick={() => canView && onView(stage)}
+        disabled={!canView}
+      >
         <div className="flex items-center gap-2">
           <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold">
             {index + 1}
           </span>
           <span className="text-sm font-medium text-slate-800">{stage.stageName}</span>
         </div>
-        <StageStatusBadge status={stage.status} />
-      </div>
+        <div className="flex items-center gap-2">
+          {canView && (
+            <span className="text-xs text-blue-500 hover:text-blue-700 font-medium">
+              {'\u25C9'} View
+            </span>
+          )}
+          <StageStatusBadge status={stage.status} />
+        </div>
+      </button>
 
       {stage.status === 'error' && (
         <div className="px-4 py-2 bg-red-50 text-xs text-red-600 border-b border-red-100">
@@ -170,7 +187,39 @@ const StageCard: React.FC<{ stage: StageResult; index: number; isPipelineRunning
   );
 };
 
-const PipelineConnector: React.FC<{ active: boolean }> = ({ active }) => (
+const SplitView: React.FC<{ stage: StageResult; onClose: () => void }> = ({ stage, onClose }) => (
+  <div className="border-t border-slate-200">
+    <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200">
+      <span className="text-sm font-medium text-slate-700">
+        {'\u25C9'} {stage.stageName}
+      </span>
+      <button
+        className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
+        onClick={onClose}
+      >
+        {'\u2715'} Close
+      </button>
+    </div>
+    <div className="flex h-80">
+      <div className="flex-1 flex flex-col border-r border-slate-200">
+        <div className="text-xs font-medium text-slate-500 px-3 py-1.5 bg-slate-50 border-b border-slate-200">
+          Input ({stage.input.length.toLocaleString()} chars)
+        </div>
+        <pre className="flex-1 text-xs font-mono text-slate-700 p-3 overflow-auto whitespace-pre-wrap leading-relaxed">
+          {stage.input}
+        </pre>
+      </div>
+      <div className="flex-1 flex flex-col">
+        <div className="text-xs font-medium text-slate-500 px-3 py-1.5 bg-slate-50 border-b border-slate-200">
+          Output ({stage.output.length.toLocaleString()} chars)
+        </div>
+        <pre className="flex-1 text-xs font-mono text-slate-700 p-3 overflow-auto whitespace-pre-wrap leading-relaxed">
+          {stage.output}
+        </pre>
+      </div>
+    </div>
+  </div>
+);
   <div className="flex justify-center py-1">
     <div className={`w-0.5 h-6 rounded-full ${active ? 'bg-blue-400' : 'bg-slate-200'}`} />
   </div>
@@ -179,6 +228,7 @@ const PipelineConnector: React.FC<{ active: boolean }> = ({ active }) => (
 const FormattedTab: React.FC<FormattedTabProps> = ({ rawText }) => {
   const { state, runAll, reset } = usePipeline();
   const [showPipeline, setShowPipeline] = useState(false);
+  const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
 
   const handleRun = useCallback(() => {
     setShowPipeline(true);
@@ -188,7 +238,20 @@ const FormattedTab: React.FC<FormattedTabProps> = ({ rawText }) => {
   const handleReset = useCallback(() => {
     setShowPipeline(false);
     reset();
+    setSelectedStageId(null);
   }, [reset]);
+
+  const handleViewStage = useCallback((stage: StageResult) => {
+    setSelectedStageId(stage.stageId);
+  }, []);
+
+  const handleCloseSplitView = useCallback(() => {
+    setSelectedStageId(null);
+  }, []);
+
+  const selectedStage = selectedStageId
+    ? state.stages.find((s) => s.stageId === selectedStageId) ?? null
+    : null;
 
   const hasRun = state.stages.some((s) => s.status === 'done' || s.status === 'error');
   const allDone = state.stages.every((s) => s.status === 'done' || s.status === 'idle');
@@ -243,10 +306,16 @@ const FormattedTab: React.FC<FormattedTabProps> = ({ rawText }) => {
         {state.stages.map((stage, i) => (
           <React.Fragment key={stage.stageId}>
             {i > 0 && <PipelineConnector active={stage.status !== 'idle'} />}
-            <StageCard stage={stage} index={i} isPipelineRunning={state.running} />
+            <StageCard stage={stage} index={i} isPipelineRunning={state.running} onView={handleViewStage} />
           </React.Fragment>
         ))}
       </div>
+
+      {selectedStage && (
+        <div className="shrink-0">
+          <SplitView stage={selectedStage} onClose={handleCloseSplitView} />
+        </div>
+      )}
 
       {allDone && !state.running && finalOutput != null && (
         <div className="shrink-0 border-t border-slate-200 px-4 py-3">

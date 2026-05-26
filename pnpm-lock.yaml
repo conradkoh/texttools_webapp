@@ -14,9 +14,6 @@ importers:
       '@llamaindex/liteparse':
         specifier: ^1.5.3
         version: 1.5.3
-      '@mlc-ai/web-llm':
-        specifier: ^0.2.83
-        version: 0.2.83
       '@mui/material':
         specifier: ^5.5.1
         version: 5.18.0(@emotion/react@11.14.0(@types/react@17.0.40)(react@17.0.2))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@17.0.40)(react@17.0.2))(@types/react@17.0.40)(react@17.0.2))(@types/react@17.0.40)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
@@ -361,9 +358,6 @@ packages:
     resolution: {integrity: sha512-8g5nK1kWP6v/KlXSBmn6si2AOSmbq0EQa+hQWBBKPqCqde2DFN871Oj4BdSVkHMfiFVIyJBkxhcLF5s1lYaDWQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
-
-  '@mlc-ai/web-llm@0.2.83':
-    resolution: {integrity: sha512-Ynuses0TM9CcSIs9PfX5+xwGOVFssQTXQaAwKFggfEw++shBbEr8fOjI7yJlY96wv0dwVFE+C2KGcO287+FuHw==}
 
   '@mui/core-downloads-tracker@5.18.0':
     resolution: {integrity: sha512-jbhwoQ1AY200PSSOrNXmrFCaSDSJWP7qk6urkTmIirvRXDROkqe+QwcLlUiw/PrREwsIF/vm3/dAXvjlMHF0RA==}
@@ -1542,10 +1536,6 @@ packages:
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
-  loglevel@1.9.2:
-    resolution: {integrity: sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==}
-    engines: {node: '>= 0.6.0'}
-
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
@@ -2511,10 +2501,6 @@ snapshots:
       - encoding
       - supports-color
 
-  '@mlc-ai/web-llm@0.2.83':
-    dependencies:
-      loglevel: 1.9.2
-
   '@mui/core-downloads-tracker@5.18.0': {}
 
   '@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@17.0.40)(react@17.0.2))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@17.0.40)(react@17.0.2))(@types/react@17.0.40)(react@17.0.2))(@types/react@17.0.40)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
@@ -3230,7 +3216,7 @@ snapshots:
       eslint: 8.11.0
       eslint-import-resolver-node: 0.3.10
       eslint-import-resolver-typescript: 2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.9.5))(eslint-import-resolver-typescript@2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0))(eslint@8.11.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.9.5))(eslint-import-resolver-typescript@2.7.1)(eslint@8.11.0)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.11.0)
       eslint-plugin-react: 7.37.5(eslint@8.11.0)
       eslint-plugin-react-hooks: 4.6.2(eslint@8.11.0)
@@ -3253,7 +3239,7 @@ snapshots:
     dependencies:
       debug: 4.4.3
       eslint: 8.11.0
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.9.5))(eslint-import-resolver-typescript@2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0))(eslint@8.11.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.9.5))(eslint-import-resolver-typescript@2.7.1)(eslint@8.11.0)
       glob: 7.2.3
       is-glob: 4.0.3
       resolve: 1.22.12
@@ -3272,7 +3258,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.9.5))(eslint-import-resolver-typescript@2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0))(eslint@8.11.0):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.9.5))(eslint-import-resolver-typescript@2.7.1)(eslint@8.11.0):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -3811,8 +3797,6 @@ snapshots:
   lines-and-columns@1.2.4: {}
 
   lodash.merge@4.6.2: {}
-
-  loglevel@1.9.2: {}
 
   loose-envify@1.4.0:
     dependencies:

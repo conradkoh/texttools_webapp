@@ -1,0 +1,4 @@
+allowBuilds:
+  '@parcel/watcher': true
+  sharp: true
+  tesseract.js: true
